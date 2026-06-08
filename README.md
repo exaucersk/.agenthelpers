@@ -30,6 +30,7 @@ Pre-defined command templates for common operations.
 Specialized skill modules for enhancing agent capabilities.
 
 - **teach** - A structured teaching framework that creates lessons, missions, learning records, glossaries, and curates resources for skill acquisition. Designed for interactive, stateful learning sessions.
+- **codebase-audit** - A structured audit framework for reviewing codebases for security issues, edge cases, and architectural gaps.
 
 ## Usage
 
