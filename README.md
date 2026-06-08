@@ -27,7 +27,9 @@ Pre-defined command templates for common operations.
 
 ### Skills
 
-Specialized skill modules (currently empty - ready for your custom skills).
+Specialized skill modules for enhancing agent capabilities.
+
+- **teach** - A structured teaching framework that creates lessons, missions, learning records, glossaries, and curates resources for skill acquisition. Designed for interactive, stateful learning sessions.
 
 ## Usage
 
