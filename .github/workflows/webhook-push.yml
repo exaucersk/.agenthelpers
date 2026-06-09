@@ -46,6 +46,6 @@ jobs:
 
           curl -X POST \
             -H "Content-Type: application/json" \
-            -H "SECRET_TOKEN: ${{SECRET_TOKEN}}" \
+            -H "SECRET_TOKEN: ${{ secrets.SECRET_TOKEN }}" \
             -d @/tmp/payload.json \
             "${{ secrets.WEBHOOK_URL }}"
