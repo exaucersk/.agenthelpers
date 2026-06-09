@@ -1,0 +1,51 @@
+name: Send Changes to Webhook
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Send changed files to webhook
+        run: |
+          echo '{"ref":"${{ github.ref }}","pusher":"${{ github.actor }}","compare":"${{ github.event.compare }}","commits":[' > /tmp/payload.json
+
+          # Gather commit info from the push
+          first=1
+          while IFS= read -r sha; do
+            [ -z "$sha" ] && continue
+            author=$(git log -1 --format='%an' "$sha")
+            email=$(git log -1 --format='%ae' "$sha")
+            msg=$(git log -1 --format='%s' "$sha" | jq -Rs .)
+            [ $first -eq 0 ] && echo ',' >> /tmp/payload.json
+            echo "{\"sha\":\"$sha\",\"author\":\"$author\",\"email\":\"$email\",\"message\":$msg}" >> /tmp/payload.json
+            first=0
+          done <<< "$(git log --format='%H' HEAD~1..HEAD)"
+
+          echo '],"changed_files":[' >> /tmp/payload.json
+
+          # Gather each changed file with its full content
+          first=1
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            content=$(jq -Rs '.' "$file")
+            [ $first -eq 0 ] && echo ',' >> /tmp/payload.json
+            echo "{\"path\":\"$file\",\"content\":$content}" >> /tmp/payload.json
+            first=0
+          done <<< "$(git diff --name-only HEAD~1 HEAD)"
+
+          echo "]}" >> /tmp/payload.json
+
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "SECRET_TOKEN: ${{SECRET_TOKEN}}" \
+            -d @/tmp/payload.json \
+            "${{ secrets.WEBHOOK_URL }}"
